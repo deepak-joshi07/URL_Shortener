@@ -10,11 +10,12 @@ class User(SQLModel , table = True):
     links : List["Link"] = Relationship(back_populates="user")
 
 class Link(SQLModel , table = True):
-    short_code : str = Field(primary_key=True)
-    original_url : str = Field(index=True)
+    link_id: int | None = Field(primary_key=True)
+    short_code : str = Field(unique=True , index = True)
+    original_url : str 
     click_count : int = Field(default=0)
     user_id : Optional[str] = Field(default = None , foreign_key="user.user_id")
     created_at : datetime = Field(default_factory= lambda : datetime.now(timezone.utc))
-    expired_at : Optional[datetime]
+    expired_at : Optional[datetime] | None = None
     user : Optional[User]  = Relationship(back_populates="links")
     
