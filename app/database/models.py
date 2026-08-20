@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel , Field , Relationship
+from sqlalchemy import BigInteger , DateTime
 from typing import Optional , List
 from datetime import datetime , timezone
 
@@ -10,12 +11,12 @@ class User(SQLModel , table = True):
     links : List["Link"] = Relationship(back_populates="user")
 
 class Link(SQLModel , table = True):
-    link_id: int | None = Field(primary_key=True)
+    link_id: int | None = Field(default=None , primary_key=True , sa_type=BigInteger)
     short_code : Optional[str] = Field(default= None , unique=True , index = True)
     original_url : str 
     click_count : int = Field(default=0)
     user_id : Optional[str] = Field(default = None , foreign_key="user.user_id")
-    created_at : datetime = Field(default_factory= lambda : datetime.now(timezone.utc))
-    expired_at : Optional[datetime] | None = None
+    created_at : datetime = Field(default_factory= lambda : datetime.now(timezone.utc) , sa_type=DateTime(timezone=True))
+    expired_at : Optional[datetime] = Field(default=None , sa_type=DateTime(timezone=True))
     user : Optional[User]  = Relationship(back_populates="links")
     
