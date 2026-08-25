@@ -12,7 +12,7 @@ class User(SQLModel , table = True):
 
 class Link(SQLModel , table = True):
     link_id: int | None = Field(default=None , primary_key=True , sa_type=BigInteger)
-    short_code : Optional[str] = Field(default= None , unique=True , index = True)
+    short_code : str = Field(unique=True , index = True)
     original_url : str 
     click_count : int = Field(default=0)
     user_id : Optional[str] = Field(default = None , foreign_key="user.user_id")
