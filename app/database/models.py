@@ -4,7 +4,7 @@ from typing import Optional , List
 from datetime import datetime , timezone
 
 class User(SQLModel , table = True):
-    user_id : str = Field(primary_key=True)
+    user_id : int = Field(primary_key=True , sa_type=BigInteger)
     username : str = Field(unique = True , index=True)
     email : str = Field(unique=True , index = True)
     hashed_password : str
@@ -15,7 +15,7 @@ class Link(SQLModel , table = True):
     short_code : str = Field(unique=True , index = True)
     original_url : str 
     click_count : int = Field(default=0)
-    user_id : Optional[str] = Field(default = None , foreign_key="user.user_id")
+    user_id : Optional[int] = Field(default = None , foreign_key="user.user_id" , sa_type=BigInteger)
     created_at : datetime = Field(default_factory= lambda : datetime.now(timezone.utc) , sa_type=DateTime(timezone=True))
     expired_at : Optional[datetime] = Field(default=None , sa_type=DateTime(timezone=True))
     user : Optional[User]  = Relationship(back_populates="links")

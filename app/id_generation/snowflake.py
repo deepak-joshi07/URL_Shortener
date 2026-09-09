@@ -46,3 +46,6 @@ class SnowflakeGenerator:
             )
 
         return snowflake
+
+
+id_generator = SnowflakeGenerator(machine_id=1)
