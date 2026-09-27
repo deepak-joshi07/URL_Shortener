@@ -1,11 +1,10 @@
 from app.database.models import Link
 from app.base62 import encode_base62
-from app.id_generation.snowflake import SnowflakeGenerator
-from sqlmodel import select
+from sqlmodel import select , update
 from datetime import datetime, timezone
+from app.id_generation.snowflake import id_generator
 
 
-id_generator = SnowflakeGenerator(machine_id=1)
 
 
 def create_link(url: str, session):
@@ -38,8 +37,14 @@ def get_link_by_short_code(short_code: str, session):
 
 
 def increment_click_count(link, session):
-    link.click_count += 1
+    statement = (
+        update(Link)
+        .where(Link.link_id == link.link_id)
+        .values(click_count = Link.click_count +1)
+    )
+    session.exec(statement)
     session.commit()
+    
 
 
 def is_link_expired(link):
