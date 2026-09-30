@@ -7,7 +7,7 @@ from app.id_generation.snowflake import id_generator
 
 
 
-def create_link(url: str, session):
+def create_link(url: str,user_id, session):
     original_url = str(url)
 
     link_id = id_generator.generate_id()
@@ -15,6 +15,7 @@ def create_link(url: str, session):
 
     link_obj = Link(
         original_url=original_url,
+        user_id = user_id,
         link_id=link_id,
         short_code=short_code
     )

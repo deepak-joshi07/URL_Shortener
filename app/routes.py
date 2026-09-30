@@ -11,7 +11,8 @@ from app.service import (
         is_link_expired , delete_link )
 
 from app.schemas import LinkCreate ,LinkResponse 
-
+from app.auth_service import get_current_user
+from app.database.models import User
 
 
 
@@ -20,11 +21,13 @@ app = FastAPI()
 @app.post("/links", response_model=LinkResponse)
 def create_short_link(
     data: LinkCreate,
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     try:
         created_link = create_link(
             url=data.original_url,
+            user_id =current_user.user_id,
             session=session
         )
 
@@ -74,6 +77,7 @@ def redirect_to_original_url(
 @app.delete('/links/{short_code}')
 def delete_link_by_shortcode(
         short_code : str,
+        current_user: User = Depends(get_current_user),
         session : Session = Depends(get_session)
 ):
     link = get_link_by_short_code(
@@ -86,15 +90,20 @@ def delete_link_by_shortcode(
             status_code= 404, 
             detail="Short link not found"
         )
+    
+    if link.user_id == current_user.user_id:
+        delete_link(
+            link ,  
+            session = session
+        )
 
-    delete_link(
-        link , 
-        session
-    )
-
-    return {
-        "message": "Short link deleted successfully"
-    }
-        
+        return {
+            "message": "Short link deleted successfully"
+        }
+    else:
+        raise  HTTPException(
+            status_code=404,
+            detail= "Short link not found"
+        )
 
 
