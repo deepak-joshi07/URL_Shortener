@@ -1,4 +1,2 @@
 .env 
 __pycache__/
-test_db.py
-test_service.py
