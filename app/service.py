@@ -47,12 +47,14 @@ def increment_click_count(link, session):
     session.commit()
     
 
-
-def is_link_expired(link):
+def is_link_expired(link, now=None):
     if link.expired_at is None:
         return False
 
-    return link.expired_at <= datetime.now(timezone.utc)
+    if now is None:
+        now = datetime.now(timezone.utc)
+
+    return link.expired_at <= now
 
 
 def delete_link(link, session):
