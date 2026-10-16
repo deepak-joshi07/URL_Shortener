@@ -3,6 +3,8 @@ import pytest
 from dotenv import load_dotenv
 from sqlalchemy.engine import make_url
 from sqlmodel import SQLModel , Session , create_engine
+from app.database.db import get_session
+from app.routes import app
 
 load_dotenv(".env.test" , override=True)
 
@@ -89,3 +91,17 @@ def test_link(session , test_user):
     session.flush()
 
     return link
+
+
+
+
+@pytest.fixture
+def override_get_session(session):
+        def override_helper():
+            return session
+
+        app.dependency_overrides[get_session] = override_helper
+
+        yield
+        
+        app.dependency_overrides.pop(get_session, None)

@@ -7,10 +7,10 @@ from datetime import timedelta , datetime , timezone
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends , HTTPException
 
-from database.models import User
-from id_generation.snowflake import id_generator
-from security import hash_password , verify_password
-from database.db import get_session
+from app.database.models import User
+from app.id_generation.snowflake import id_generator
+from app.security import hash_password , verify_password
+from app.database.db import get_session
 
 def create_user(username : str , email : str, password, session):
     existing_user = session.exec(

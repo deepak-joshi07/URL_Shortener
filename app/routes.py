@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 
 
-from database.db import get_session
+from app.database.db import get_session
 from app.service import (
     create_link ,
       get_link_by_short_code , 
