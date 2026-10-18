@@ -53,28 +53,28 @@ def test_increment_click_count(test_link , session):
 
 
 def test_link_without_expiry_is_not_expired(test_link):
-    test_link.expired_at = None
+    test_link.expires_at = None
 
     assert is_link_expired(test_link) is False
 
 
 def test_link_with_future_expiry_is_not_expired(test_link):
     now = datetime(2026, 10, 13, 12, 0, tzinfo=timezone.utc)
-    test_link.expired_at = now + timedelta(hours=1)
+    test_link.expires_at = now + timedelta(hours=1)
 
     assert is_link_expired(test_link, now=now) is False
 
 
 def test_link_with_past_expiry_is_expired(test_link):
     now = datetime(2026, 10, 13, 12, 0, tzinfo=timezone.utc)
-    test_link.expired_at = now - timedelta(hours=1)
+    test_link.expires_at = now - timedelta(hours=1)
 
     assert is_link_expired(test_link, now=now) is True
 
 
 def test_link_expiring_exactly_now_is_expired(test_link):
     now = datetime(2026, 10, 13, 12, 0, tzinfo=timezone.utc)
-    test_link.expired_at = now
+    test_link.expires_at = now
 
     assert is_link_expired(test_link, now=now) is True
 

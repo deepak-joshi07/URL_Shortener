@@ -8,7 +8,8 @@ from app.service import (
     create_link ,
       get_link_by_short_code , 
       increment_click_count ,
-        is_link_expired , delete_link )
+        is_link_expired , 
+        delete_link )
 
 from app.schemas import LinkCreate ,LinkResponse 
 from app.auth_service import get_current_user
@@ -37,7 +38,7 @@ def create_short_link(
             original_url=created_link.original_url,
             click_count=created_link.click_count,
             created_at=created_link.created_at,
-            expires_at=created_link.expired_at
+            expires_at=created_link.expires_at
         )
 
     except ValueError as e:

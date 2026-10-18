@@ -44,7 +44,7 @@ def create_user(username : str , email : str, password, session):
 
     session.add(user)
     session.commit()
-    session.refresh
+    session.refresh(user)
 
     return user
 

@@ -17,6 +17,6 @@ class Link(SQLModel , table = True):
     click_count : int = Field(default=0)
     user_id : Optional[int] = Field(default = None , foreign_key="user.user_id" , sa_type=BigInteger)
     created_at : datetime = Field(default_factory= lambda : datetime.now(timezone.utc) , sa_type=DateTime(timezone=True))
-    expired_at : Optional[datetime] = Field(default=None , sa_type=DateTime(timezone=True))
+    expires_at : Optional[datetime] = Field(default=None , sa_type=DateTime(timezone=True))
     user : Optional[User]  = Relationship(back_populates="links")
     

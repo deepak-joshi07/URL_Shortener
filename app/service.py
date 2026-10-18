@@ -48,13 +48,13 @@ def increment_click_count(link, session):
     
 
 def is_link_expired(link, now=None):
-    if link.expired_at is None:
+    if link.expires_at is None:
         return False
 
     if now is None:
         now = datetime.now(timezone.utc)
 
-    return link.expired_at <= now
+    return link.expires_at <= now
 
 
 def delete_link(link, session):
