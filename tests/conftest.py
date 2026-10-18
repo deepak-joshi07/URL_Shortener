@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from sqlalchemy.engine import make_url
 from sqlmodel import SQLModel , Session , create_engine
 from app.database.db import get_session
-from app.routes import app
+from app.main import app
 
 load_dotenv(".env.test" , override=True)
 
@@ -98,7 +98,7 @@ def test_link(session , test_user):
 @pytest.fixture
 def override_get_session(session):
         def override_helper():
-            return session
+            yield session
 
         app.dependency_overrides[get_session] = override_helper
 

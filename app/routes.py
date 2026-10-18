@@ -1,4 +1,4 @@
-from fastapi import FastAPI , HTTPException , Depends
+from fastapi import FastAPI , HTTPException , Depends , APIRouter
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 
@@ -15,11 +15,9 @@ from app.schemas import LinkCreate ,LinkResponse
 from app.auth_service import get_current_user
 from app.database.models import User
 
+api_router = APIRouter(prefix="/api")
 
-
-app = FastAPI()
-
-@app.post("/links", response_model=LinkResponse)
+@api_router.post("/links", response_model=LinkResponse)
 def create_short_link(
     data: LinkCreate,
     current_user: User = Depends(get_current_user),
@@ -47,35 +45,8 @@ def create_short_link(
             detail=str(e)
         )
 
-@app.get('/{short_code}')
-def redirect_to_original_url(
-    short_code : str , 
-    session : Session = Depends(get_session)
-    ):
-    link =  get_link_by_short_code(short_code, session)
 
-    if link is None:
-        raise HTTPException(
-            status_code=404,
-            detail= "Short link not found"
-        )
-
-    if is_link_expired(link):
-        raise HTTPException(
-            status_code=410,
-            detail='Short link expired'
-        )
-
-    increment_click_count(
-        link , 
-        session
-    )
-
-    return RedirectResponse(
-        url= link.original_url,
-        status_code= 307
-    )
-@app.delete('/links/{short_code}')
+@api_router.delete('/links/{short_code}')
 def delete_link_by_shortcode(
         short_code : str,
         current_user: User = Depends(get_current_user),
@@ -108,3 +79,36 @@ def delete_link_by_shortcode(
         )
 
 
+
+redirect_router = APIRouter()
+@redirect_router.get('/{short_code}')
+def redirect_to_original_url(
+    short_code : str , 
+    session : Session = Depends(get_session)
+    ):
+    link =  get_link_by_short_code(short_code, session)
+
+    if link is None:
+        raise HTTPException(
+            status_code=404,
+            detail= "Short link not found"
+        )
+
+    if is_link_expired(link):
+        raise HTTPException(
+            status_code=410,
+            detail='Short link expired'
+        )
+
+    increment_click_count(
+        link , 
+        session
+    )
+
+    return RedirectResponse(
+        url= link.original_url,
+        status_code= 307
+    )
+
+
+router = api_router

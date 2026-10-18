@@ -2,7 +2,7 @@
 from fastapi.testclient import TestClient
 from sqlmodel import select
 
-from app.routes import app
+from app.main import app
 from app.database.models import Link
 from app.auth_service import create_access_token
 
@@ -18,7 +18,7 @@ def test_create_short_link(test_user, session , override_get_session):
         original_url = "https://example.com/new-test-page"
 
         response = client.post(
-            "/links",
+            "/api/links",
             json={"original_url": original_url},
             headers={
                 "Authorization": f"Bearer {token}"
@@ -64,7 +64,7 @@ def test_delete_link_by_short_code(test_user ,test_link ,session , override_get_
         )  
 
         response = client.delete(
-                f"/links/{short_code}",
+                f"/api/links/{short_code}",
                 headers={"Authorization": f"Bearer {token}"},
         )    
 
