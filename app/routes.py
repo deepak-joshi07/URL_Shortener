@@ -1,4 +1,4 @@
-from fastapi import FastAPI , HTTPException , Depends , APIRouter
+from fastapi import HTTPException , Depends , APIRouter , Request
 from fastapi.responses import RedirectResponse
 from sqlmodel import Session
 
@@ -20,6 +20,7 @@ api_router = APIRouter(prefix="/api")
 @api_router.post("/links", response_model=LinkResponse)
 def create_short_link(
     data: LinkCreate,
+    request : Request,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
@@ -30,9 +31,12 @@ def create_short_link(
             session=session
         )
 
+        base_url = str(request.base_url).rstrip("/")
+        short_url = f"{base_url}/{created_link.short_code}"
+
         return LinkResponse(
             short_code=created_link.short_code,
-            short_url=f"http://localhost:8000/{created_link.short_code}",
+            short_url=short_url,
             original_url=created_link.original_url,
             click_count=created_link.click_count,
             created_at=created_link.created_at,
@@ -109,6 +113,3 @@ def redirect_to_original_url(
         url= link.original_url,
         status_code= 307
     )
-
-
-router = api_router
