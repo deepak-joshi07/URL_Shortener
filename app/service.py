@@ -3,27 +3,35 @@ from app.base62 import encode_base62
 from sqlmodel import select , update
 from datetime import datetime, timezone
 from app.id_generation.snowflake import id_generator
+from sqlalchemy.exc import IntegrityError
 
 
-def create_link(url: str,user_id, session):
-    original_url = str(url)
+def  create_link(url: str,user_id, session):
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        try:
+            original_url = str(url)
 
-    link_id = id_generator.generate_id()
-    short_code = encode_base62(link_id)
+            link_id = id_generator.generate_id()
+            short_code = encode_base62(link_id)
 
-    link_obj = Link(
-        original_url=original_url,
-        user_id = user_id,
-        link_id=link_id,
-        short_code=short_code
-    )
+            link_obj = Link(
+                original_url=original_url,
+                user_id = user_id,
+                link_id=link_id,
+                short_code=short_code
+            )
 
-    session.add(link_obj)
-    session.commit()
-    session.refresh(link_obj)
+            session.add(link_obj)
+            session.commit()
+            session.refresh(link_obj)
 
-    return link_obj
-
+            return link_obj
+        except IntegrityError : 
+            session.rollback()
+            if attempt == max_attempts-1: 
+                raise 
+            continue
 
 def get_link_by_short_code_for_user(short_code: str,user_id : str , session ):
     link = session.exec(
