@@ -7,6 +7,7 @@ from app.database.db import get_session
 from app.service import (
     create_link ,
       get_link_by_short_code , 
+      get_link_by_short_code_for_user,
       increment_click_count ,
         is_link_expired , 
         delete_link )
@@ -56,8 +57,9 @@ def delete_link_by_shortcode(
         current_user: User = Depends(get_current_user),
         session : Session = Depends(get_session)
 ):
-    link = get_link_by_short_code(
+    link = get_link_by_short_code_for_user(
         short_code,
+        current_user.user_id,
         session
     )
 
@@ -67,20 +69,13 @@ def delete_link_by_shortcode(
             detail="Short link not found"
         )
     
-    if link.user_id == current_user.user_id:
-        delete_link(
-            link ,  
-            session = session
+    delete_link(
+        link ,  
+        session = session
         )
 
-        return {
-            "message": "Short link deleted successfully"
-        }
-    else:
-        raise  HTTPException(
-            status_code=404,
-            detail= "Short link not found"
-        )
+    return {"message": "Short link deleted successfully"}
+
 
 
 

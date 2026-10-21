@@ -5,8 +5,6 @@ from datetime import datetime, timezone
 from app.id_generation.snowflake import id_generator
 
 
-
-
 def create_link(url: str,user_id, session):
     original_url = str(url)
 
@@ -27,14 +25,25 @@ def create_link(url: str,user_id, session):
     return link_obj
 
 
-def get_link_by_short_code(short_code: str, session):
+def get_link_by_short_code_for_user(short_code: str,user_id : str , session ):
+    link = session.exec(
+        select(Link).where(
+            Link.short_code == short_code,
+            Link.user_id == user_id
+        )
+        ).first()
+
+    return link
+
+def get_link_by_short_code(short_code: str, session ):
     link = session.exec(
         select(Link).where(
             Link.short_code == short_code
         )
-    ).first()
+        ).first()
 
     return link
+    
 
 
 def increment_click_count(link, session):
