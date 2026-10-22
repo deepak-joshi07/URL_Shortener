@@ -1,6 +1,7 @@
 from fastapi import HTTPException , Depends , APIRouter , Request
 from fastapi.responses import RedirectResponse
-from sqlmodel import Session
+from sqlmodel import Session 
+from typing import Optional
 
 
 from app.database.db import get_session
@@ -13,7 +14,7 @@ from app.service import (
         delete_link )
 
 from app.schemas import LinkCreate ,LinkResponse 
-from app.auth_service import get_current_user
+from app.auth_service import get_current_user , get_optional_current_user
 from app.database.models import User
 
 api_router = APIRouter(prefix="/api")
@@ -22,14 +23,16 @@ api_router = APIRouter(prefix="/api")
 def create_short_link(
     data: LinkCreate,
     request : Request,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_current_user),
     session: Session = Depends(get_session)
 ):
     try:
         created_link = create_link(
             url=data.original_url,
-            user_id =current_user.user_id,
-            session=session
+            user_id =current_user.user_id if current_user else None,
+            session=session,
+            custom_alias=data.custom_alias,
+            expires_at= data.expires_at
         )
 
         base_url = str(request.base_url).rstrip("/")

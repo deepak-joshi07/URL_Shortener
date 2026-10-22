@@ -4,22 +4,30 @@ from sqlmodel import select , update
 from datetime import datetime, timezone
 from app.id_generation.snowflake import id_generator
 from sqlalchemy.exc import IntegrityError
+from typing import Optional
 
 
-def  create_link(url: str,user_id, session):
+def  create_link(url: str,user_id, session , custom_alias: Optional[str] = None ,expires_at : Optional[datetime] = None ):
     max_attempts = 3
     for attempt in range(max_attempts):
         try:
             original_url = str(url)
-
-            link_id = id_generator.generate_id()
-            short_code = encode_base62(link_id)
+            if custom_alias:
+                existing = session.exec(select(Link).where(Link.short_code == custom_alias)).first()
+                if existing:
+                    raise ValueError("Custom alias already taken")
+                short_code = custom_alias
+                link_id = id_generator.generate_id()
+            else:
+                link_id = id_generator.generate_id()
+                short_code = encode_base62(link_id)
 
             link_obj = Link(
                 original_url=original_url,
                 user_id = user_id,
                 link_id=link_id,
-                short_code=short_code
+                short_code=short_code,
+                expires_at=expires_at
             )
 
             session.add(link_obj)
@@ -29,6 +37,8 @@ def  create_link(url: str,user_id, session):
             return link_obj
         except IntegrityError : 
             session.rollback()
+            if custom_alias:
+                raise ValueError("Custom alias already taken") 
             if attempt == max_attempts-1: 
                 raise 
             continue

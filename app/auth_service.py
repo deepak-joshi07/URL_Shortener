@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from jwt.exceptions import InvalidTokenError
 from datetime import timedelta , datetime , timezone
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends , HTTPException
+from fastapi import Depends , HTTPException , Request
+from typing import Optional
 
 from app.database.models import User
 from app.id_generation.snowflake import id_generator
@@ -146,3 +147,31 @@ def get_current_user(token: str = Depends(oauth2_scheme),session: Session = Depe
         )
 
     return user
+
+
+def get_optional_current_user(
+    request: Request,
+    session: Session = Depends(get_session)
+) -> Optional[User]:
+    auth_header = request.headers.get("Authorization")
+    
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return None 
+    
+    token = auth_header.split(" ")[1]
+    
+    try:
+        payload = decode_access_token(token)  
+
+        if payload is None:
+            return None
+        
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        user = session.get(User, int(user_id))
+        return user
+    except Exception:
+        return None  
+
+    
